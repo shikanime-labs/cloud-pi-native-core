@@ -1,16 +1,17 @@
 {
-  "compilerOptions": {
-    "erasableSyntaxOnly": true,
-    "lib": ["ESNext"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noEmit": true,
-    "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
-    "types": [],
-    "verbatimModuleSyntax": true
-  },
-  "include": ["src", "test"]
+	"compilerOptions": {
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true,
+		"lib": ["ESNext", "DOM"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"noEmit": true,
+		"noUncheckedIndexedAccess": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "ESNext",
+		"types": [],
+		"verbatimModuleSyntax": true
+	},
+	"include": ["src", "test"]
 }
