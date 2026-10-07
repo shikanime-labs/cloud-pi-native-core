@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.0.0
@@ -14,6 +18,9 @@ importers:
       '@effect/vitest':
         specifier: ^4.0.1
         version: 4.0.1(effect@3.22.2)(vitest@3.2.7(@types/node@26.6.4)(yaml@2.9.1))
+      '@types/node':
+        specifier: ^26.6.4
+        version: 26.6.4
       alchemy:
         specifier: 2.0.0-beta.81
         version: 2.0.0-beta.81(@effect/vitest@4.0.1(effect@3.22.2)(vitest@3.2.7(@types/node@26.6.4)(yaml@2.9.1)))(@types/node@26.6.4)(effect@3.22.2)(hono@4.11.4)(typescript@5.9.3)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1))(ws@8.22.0)
