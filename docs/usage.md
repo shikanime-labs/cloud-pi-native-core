@@ -212,6 +212,58 @@ function**. The entrypoints are the `Stack` factory default-exported from
 lazy `Output` references — valid `Input`s for downstream props without
 unwrapping.
 
+### Composites (`src/composite`)
+
+| Type | Purpose | Key props |
+|---|---|---|
+| `Cpn.Project` | One console project across every service, as one resource | `slug`, `name`, `owner`, `roles`, `members`, `environments` |
+| `Cpn.AdminRole` | One platform admin role (Keycloak group + members) | `role`, `userEmails` |
+
+`Cpn.Project` drives the existing per-service providers as children in
+dependency order (Keycloak tree, GitLab, SonarQube, Harbor, Nexus,
+Vault, ArgoCD), threading child outputs (`groupId`, `projectId`, repo
+path) into downstream props; delete walks the same children in exact
+reverse. Child prop derivation is pure and lives in `src/composite/
+derive.ts`, which imports alchemy types only — tests load it without
+any alchemy runtime dependency.
+
+Wire everything with `CpnProvider(config)` (`src/composite/provider.ts`)
+— one layer bundling every per-service provider plus the two composites,
+fed by one config object with a field per service:
+
+```ts
+import { AdminRole, CpnProvider, Project } from
+  "cloud-pi-native-core/src/composite/index.js";
+
+const providers = CpnProvider({
+  keycloak: { baseUrl, realm, /* ... */ },
+  gitlab: { url, token },
+  sonarqube: { url, token },
+  vault: { url, token },
+  nexus: { url, token },
+  harbor: { url, username, password },
+  argocd: gitClient,
+});
+
+const project = yield* Project("project", {
+  slug: "dso",
+  name: "Cloud Pi Native",
+  description: "console extraction",
+  owner: "owner@example.fr",
+  roles: [{ name: "devops", oidcGroup: "devops", /* ... */ }],
+  members: [{ email: "owner@example.fr", roleIds: ["devops"] }],
+  environments: [
+    { name: "dev", zoneSlug: "scw1", clusterLabel: "c1", /* ... */ },
+  ],
+});
+// project.gitlabGroupFullPath, project.harborProjectId, ...
+```
+
+Gaps: members keyed by `userId` (no email) keep their id for GitLab
+memberships but cannot be mirrored to Keycloak/GitLab users; Nexus
+platform roles stay stack-level (`Cpn.Nexus.PlatformRoles`) because
+they aggregate all projects.
+
 ## Related
 
 - [`docs/audit/`](./audit/README.md) — per-service behavioral source of truth
