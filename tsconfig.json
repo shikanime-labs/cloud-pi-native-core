@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "erasableSyntaxOnly": true,
+    "lib": ["ESNext"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["ESNext"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
     "noEmit": true,
+    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true,
-    "types": []
+    "strict": true,
+    "target": "ESNext",
+    "types": [],
+    "verbatimModuleSyntax": true
   },
   "include": ["src", "test"]
 }
