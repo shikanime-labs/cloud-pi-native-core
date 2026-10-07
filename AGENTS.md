@@ -42,7 +42,7 @@ Plain capitalized title, no conventional-commit prefix. Body labels:
 `Design:`, `Related:`, `Closes #`. Add the Automata co-author trailer on
 agent-authored commits:
 
-```
+```text
 Co-authored-by: Automata <automata@shikanime.studio>
 ```
 

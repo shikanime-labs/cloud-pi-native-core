@@ -1,10 +1,14 @@
-name: Integration
-permissions:
-  contents: read
+%YAML 1.1
+---
 jobs:
+  javascript:
+    if: ${{ github.event_name == 'workflow_call' || github.event_name == 
+      'workflow_dispatch' || github.event.pull_request.draft == false }}
+    secrets:
+      OPERATOR_PRIVATE_KEY: ${{ secrets.OPERATOR_PRIVATE_KEY }}
+    uses: $/.github/workflows/javascript.yaml
   nix:
-    if:
-      ${{ github.event_name == 'workflow_call' || github.event_name ==
+    if: ${{ github.event_name == 'workflow_call' || github.event_name == 
       'workflow_dispatch' || github.event.pull_request.draft == false }}
     permissions:
       contents: read
@@ -15,16 +19,20 @@ jobs:
     uses: $/.github/workflows/nix.yaml
     with:
       cachix-name: shikanime-studio
-"on":
+name: Integration
+'on':
+  merge_group:
+    types:
+    - checks_requested
   pull_request:
     branches:
-      - main
-      - gh/*/*/base
+    - main
+    - gh/*/*/base
     types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
   workflow_call:
     secrets:
       CACHIX_AUTH_TOKEN:
@@ -32,3 +40,5 @@ jobs:
       OPERATOR_PRIVATE_KEY:
         required: true
   workflow_dispatch: {}
+permissions:
+  contents: read

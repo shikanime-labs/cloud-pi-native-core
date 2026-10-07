@@ -68,6 +68,7 @@
       perSystem = _: {
         devenv.shells.default = {
           devenv.root = builtins.getEnv "PWD";
+          treefmt.config.settings.global.excludes = [ "pnpm-lock.yaml" ];
           imports = [
             devlib.devenvModules.git
             devlib.devenvModules.nix
