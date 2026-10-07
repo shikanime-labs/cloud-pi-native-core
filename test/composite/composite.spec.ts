@@ -4,9 +4,13 @@ import {
 	type CpnProviderConfig,
 	deriveAdminRoleChildProps,
 	deriveProjectChildProps,
+	deriveZoneChildProps,
 	type ProjectProps,
 	projectCreateOrder,
 	projectDeleteOrder,
+	type ZoneProps,
+	zoneCreateOrder,
+	zoneDeleteOrder,
 } from "../../src/composite/derive.ts";
 import {
 	gitlabMirrorCredPath,
@@ -283,6 +287,29 @@ describe("deriveAdminRoleChildProps", () => {
 
 	it("create order covers the single keycloak child", () => {
 		expect(adminRoleCreateOrder).toEqual(["keycloakGroup"]);
+	});
+});
+
+describe("deriveZoneChildProps", () => {
+	it("derives every vault child from the zone slug", () => {
+		const child = deriveZoneChildProps({ slug: "scw1" } satisfies ZoneProps);
+		expect(child).toEqual({
+			vaultMount: { zone: "scw1" },
+			vaultPolicy: { zone: "scw1" },
+			vaultAppRole: { zone: "scw1" },
+		});
+	});
+
+	it("delete order is the exact reverse of create order", () => {
+		expect(zoneDeleteOrder).toEqual([...zoneCreateOrder].reverse());
+	});
+
+	it("create order is mount → policy → approle", () => {
+		expect([...zoneCreateOrder]).toEqual([
+			"vaultMount",
+			"vaultPolicy",
+			"vaultAppRole",
+		]);
 	});
 });
 
