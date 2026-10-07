@@ -398,6 +398,61 @@ export const zoneDeleteOrder: readonly ZoneChildKind[] = [
 ].reverse();
 
 // ---------------------------------------------------------------------------
+// Cpn.Cluster props + child derivation. The cluster's service footprint is
+// Vault-side (docs/audit/domain-remap.md): the ArgoCD cluster secret the
+// console's argocd plugin writes on the zone mount. `privacy`, quota and
+// `secretName` are console-DB metadata no service child consumes, so they
+// stay out of the props (see domain-remap.md).
+// ---------------------------------------------------------------------------
+
+/** Core-domain cluster; `zone` keys the mount, `cluster` the secret path. */
+export interface ClusterProps {
+	/** Owning zone slug — the secret lands on the `zone-<slug>` mount. */
+	readonly zone: string;
+	/** Cluster label (console: unique) — the secret path segment. */
+	readonly cluster: string;
+	/** Cluster API server URL. */
+	readonly server: string;
+	/** JSON-encoded kubeconfig credentials string ArgoCD accepts. */
+	readonly config: string;
+	/** Whether namespace-scoped resources are allowed. */
+	readonly clusterResources: boolean;
+}
+
+/** Static child props; the single Vault child keys on zone + cluster label. */
+export interface ClusterChildProps {
+	readonly kubeconfigSecret: {
+		readonly zone: string;
+		readonly cluster: string;
+		readonly server: string;
+		readonly config: string;
+		readonly clusterResources: boolean;
+	};
+}
+
+export const deriveClusterChildProps = (
+	props: ClusterProps,
+): ClusterChildProps => ({
+	kubeconfigSecret: {
+		zone: props.zone,
+		cluster: props.cluster,
+		server: props.server,
+		config: props.config,
+		clusterResources: props.clusterResources,
+	},
+});
+
+export const clusterCreateOrder = [
+	"kubeconfigSecret",
+] as const satisfies readonly string[];
+
+export type ClusterChildKind = (typeof clusterCreateOrder)[number];
+
+export const clusterDeleteOrder: readonly ClusterChildKind[] = [
+	...clusterCreateOrder,
+].reverse();
+
+// ---------------------------------------------------------------------------
 // CpnProvider config — one field per service client. Pure shape: the
 // connection types are imported type-only, so tests can check the shape
 // without loading alchemy.

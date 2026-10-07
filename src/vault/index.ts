@@ -2,6 +2,7 @@ export * from "./approles.ts";
 export * from "./client.ts";
 export * from "./credentials.ts";
 export * from "./identity.ts";
+export * from "./kubeconfig.ts";
 export * from "./mounts.ts";
 export * from "./paths.ts";
 export * from "./policies.ts";

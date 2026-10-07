@@ -8,6 +8,7 @@ import * as nexus from "../nexus/index.ts";
 import * as sonarqube from "../sonarqube/index.ts";
 import * as vault from "../vault/index.ts";
 import { AdminRoleProvider } from "./admin-role.ts";
+import { ClusterProvider } from "./cluster.ts";
 import type { CpnProviderConfig } from "./derive.ts";
 import { ProjectProvider } from "./project.ts";
 import { ZoneProvider } from "./zone.ts";
@@ -47,10 +48,12 @@ export const CpnProvider = (config: CpnProviderConfig) =>
 		vault.ZoneAppRoleProvider(),
 		vault.SecretProvider(),
 		vault.IdentityGroupProvider(),
+		vault.KubeconfigSecretProvider(),
 		argocd.ProjectEnvironmentsProvider,
 		ProjectProvider(),
 		AdminRoleProvider(),
 		ZoneProvider(),
+		ClusterProvider(),
 	).pipe(
 		// nexus first: the config-resolved client feeds both the standalone
 		// nexus providers and the nexus children driven by Cpn.Project.

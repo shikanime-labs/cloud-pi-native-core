@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
 	adminRoleCreateOrder,
 	type CpnProviderConfig,
+	clusterCreateOrder,
+	clusterDeleteOrder,
 	deriveAdminRoleChildProps,
+	deriveClusterChildProps,
 	deriveProjectChildProps,
 	deriveZoneChildProps,
 	type ProjectProps,
@@ -310,6 +313,32 @@ describe("deriveZoneChildProps", () => {
 			"vaultPolicy",
 			"vaultAppRole",
 		]);
+	});
+});
+
+describe("deriveClusterChildProps", () => {
+	it("threads the cluster inputs straight into the vault secret child", () => {
+		const child = deriveClusterChildProps({
+			zone: "scw1",
+			cluster: "cluster-1",
+			server: "https://kube.example.fr",
+			config: "{}",
+			clusterResources: true,
+		});
+		expect(child).toEqual({
+			kubeconfigSecret: {
+				zone: "scw1",
+				cluster: "cluster-1",
+				server: "https://kube.example.fr",
+				config: "{}",
+				clusterResources: true,
+			},
+		});
+	});
+
+	it("create order covers the single vault child, delete is the reverse", () => {
+		expect([...clusterCreateOrder]).toEqual(["kubeconfigSecret"]);
+		expect(clusterDeleteOrder).toEqual([...clusterCreateOrder].reverse());
 	});
 });
 
