@@ -49,7 +49,9 @@ const maybeAddUser = (
           );
         }
         if (isKeycloakConflict(error)) {
-          return Effect.logDebug(`User '${email}' already a member of ${label}`);
+          return Effect.logDebug(
+            `User '${email}' already a member of ${label}`,
+          );
         }
         return Effect.fail(error);
       }),
@@ -86,12 +88,14 @@ const currentMemberEmails = (
   client: KeycloakClientService,
   groupId: string,
 ): Effect.Effect<ReadonlySet<string>, KeycloakError> =>
-  Effect.map(client.getGroupMembers(groupId), (members) =>
-    new Set(
-      members.flatMap((member) =>
-        member.email === undefined ? [] : [member.email],
+  Effect.map(
+    client.getGroupMembers(groupId),
+    (members) =>
+      new Set(
+        members.flatMap((member) =>
+          member.email === undefined ? [] : [member.email],
+        ),
       ),
-    ),
   );
 
 /**
@@ -145,21 +149,20 @@ export interface ProjectGroupsProps {
   readonly environments?: readonly EnvironmentProps[];
 }
 
-export interface ProjectGroups
-  extends Resource<
-    "Cpn.Keycloak.ProjectGroups",
-    ProjectGroupsProps,
-    {
-      readonly groupPath: string;
-      readonly consoleGroupPath: string;
-      readonly roleGroupPaths: readonly string[];
-      readonly environmentGroupPaths: readonly {
-        readonly name: string;
-        readonly ro: string;
-        readonly rw: string;
-      }[];
-    }
-  > {}
+export interface ProjectGroups extends Resource<
+  "Cpn.Keycloak.ProjectGroups",
+  ProjectGroupsProps,
+  {
+    readonly groupPath: string;
+    readonly consoleGroupPath: string;
+    readonly roleGroupPaths: readonly string[];
+    readonly environmentGroupPaths: readonly {
+      readonly name: string;
+      readonly ro: string;
+      readonly rw: string;
+    }[];
+  }
+> {}
 
 export const ProjectGroups = Resource<ProjectGroups>(
   "Cpn.Keycloak.ProjectGroups",
@@ -257,13 +260,15 @@ export const ProjectGroupsProvider = () =>
                 yield* Effect.log(
                   `Deleting orphan Keycloak env group ${orphan.name} (${slug})`,
                 );
-                yield* client.deleteGroupTree(orphan.id).pipe(
-                  Effect.catchAll((error) =>
-                    Effect.logWarning(
-                      `Failed to delete orphan env group ${orphan.name}: ${error.message}`,
+                yield* client
+                  .deleteGroupTree(orphan.id)
+                  .pipe(
+                    Effect.catchAll((error) =>
+                      Effect.logWarning(
+                        `Failed to delete orphan env group ${orphan.name}: ${error.message}`,
+                      ),
                     ),
-                  ),
-                );
+                  );
               }
             }
 
@@ -305,12 +310,11 @@ export interface RoleGroupMembersProps {
   readonly projectUserEmails: readonly string[];
 }
 
-export interface RoleGroupMembers
-  extends Resource<
-    "Cpn.Keycloak.RoleGroupMembers",
-    RoleGroupMembersProps,
-    { readonly groupPath: string; readonly memberEmails: readonly string[] }
-  > {}
+export interface RoleGroupMembers extends Resource<
+  "Cpn.Keycloak.RoleGroupMembers",
+  RoleGroupMembersProps,
+  { readonly groupPath: string; readonly memberEmails: readonly string[] }
+> {}
 
 export const RoleGroupMembers = Resource<RoleGroupMembers>(
   "Cpn.Keycloak.RoleGroupMembers",
@@ -374,12 +378,11 @@ export interface AdminRoleGroupProps {
   readonly userEmails: readonly string[];
 }
 
-export interface AdminRoleGroup
-  extends Resource<
-    "Cpn.Keycloak.AdminRoleGroup",
-    AdminRoleGroupProps,
-    { readonly groupPath: string; readonly memberEmails: readonly string[] }
-  > {}
+export interface AdminRoleGroup extends Resource<
+  "Cpn.Keycloak.AdminRoleGroup",
+  AdminRoleGroupProps,
+  { readonly groupPath: string; readonly memberEmails: readonly string[] }
+> {}
 
 export const AdminRoleGroup = Resource<AdminRoleGroup>(
   "Cpn.Keycloak.AdminRoleGroup",

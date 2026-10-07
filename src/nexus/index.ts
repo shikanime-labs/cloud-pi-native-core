@@ -7,38 +7,38 @@ import { PlatformRolesProvider } from "./platform-roles.js";
 import { ProjectRolesProvider } from "./project-roles.js";
 
 export {
-	ensureNexus,
-	isNexusAlreadyExists,
-	isNexusNotFound,
-	NexusClient,
-	NexusClientLive,
-	type NexusClientService,
-	type NexusConfig,
-	NexusError,
+  ensureNexus,
+  isNexusAlreadyExists,
+  isNexusNotFound,
+  NexusClient,
+  NexusClientLive,
+  type NexusClientService,
+  type NexusConfig,
+  NexusError,
 } from "./client.js";
 export {
-	GroupRepo,
-	type GroupRepo as GroupRepoType,
-	type GroupRepoProps,
-	GroupRepoProvider,
+  GroupRepo,
+  type GroupRepo as GroupRepoType,
+  type GroupRepoProps,
+  GroupRepoProvider,
 } from "./group-repo.js";
 export {
-	MavenRepos,
-	type MavenRepos as MavenReposType,
-	type MavenReposProps,
-	MavenReposProvider,
+  MavenRepos,
+  type MavenRepos as MavenReposType,
+  type MavenReposProps,
+  MavenReposProvider,
 } from "./maven-repos.js";
 export {
-	PlatformRoles,
-	type PlatformRoles as PlatformRolesType,
-	type PlatformRolesProps,
-	PlatformRolesProvider,
+  PlatformRoles,
+  type PlatformRoles as PlatformRolesType,
+  type PlatformRolesProps,
+  PlatformRolesProvider,
 } from "./platform-roles.js";
 export {
-	ProjectRoles,
-	type ProjectRoles as ProjectRolesType,
-	type ProjectRolesProps,
-	ProjectRolesProvider,
+  ProjectRoles,
+  type ProjectRoles as ProjectRolesType,
+  type ProjectRolesProps,
+  ProjectRolesProvider,
 } from "./project-roles.js";
 export * from "./roles.js";
 
@@ -48,15 +48,15 @@ export * from "./roles.js";
  * stack: `{ providers: Nexus.providers(() => Effect.succeed({ url, token })) }`.
  */
 export const providers = (
-	config: () => Effect.Effect<NexusConfig>,
+  config: () => Effect.Effect<NexusConfig>,
 ): Layer.Layer<never> =>
-	Layer.mergeAll(
-		GroupRepoProvider(),
-		MavenReposProvider(),
-		PlatformRolesProvider(),
-		ProjectRolesProvider(),
-	).pipe(
-		Layer.provide(
-			Layer.effect(NexusClient, Effect.succeed(NexusClientLive(config))),
-		),
-	);
+  Layer.mergeAll(
+    GroupRepoProvider(),
+    MavenReposProvider(),
+    PlatformRolesProvider(),
+    ProjectRolesProvider(),
+  ).pipe(
+    Layer.provide(
+      Layer.effect(NexusClient, Effect.succeed(NexusClientLive(config))),
+    ),
+  );

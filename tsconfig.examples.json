@@ -10,8 +10,8 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": [],
+    "types": ["node"],
     "verbatimModuleSyntax": true
   },
-  "include": ["src", "test"]
+  "include": ["examples", "src"]
 }

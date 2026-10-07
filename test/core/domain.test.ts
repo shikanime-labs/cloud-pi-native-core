@@ -76,8 +76,12 @@ describe("zod round-trips", () => {
   });
 
   it("rejects bad owner email and bad status", () => {
-    expect(() => ProjectSchema.parse({ ...project, owner: "not-an-email" })).toThrow();
-    expect(() => ProjectSchema.parse({ ...project, status: "unknown" })).toThrow();
+    expect(() =>
+      ProjectSchema.parse({ ...project, owner: "not-an-email" }),
+    ).toThrow();
+    expect(() =>
+      ProjectSchema.parse({ ...project, status: "unknown" }),
+    ).toThrow();
   });
 
   it("rejects a member carrying both email and userId", () => {
@@ -96,7 +100,11 @@ describe("zod round-trips", () => {
   });
 
   it("Zone caps slug at 10 chars", () => {
-    const zone = { slug: "platform", label: "Platform", argocdUrl: "https://argo.example.fr" };
+    const zone = {
+      slug: "platform",
+      label: "Platform",
+      argocdUrl: "https://argo.example.fr",
+    };
     expect(ZoneSchema.parse(zone)).toEqual(zone);
     expect(() => ZoneSchema.parse({ ...zone, slug: "0123456789A" })).toThrow();
   });
@@ -112,7 +120,9 @@ describe("zod round-trips", () => {
       memory: 32,
     };
     expect(ClusterSchema.parse(cluster)).toEqual(cluster);
-    expect(() => ClusterSchema.parse({ ...cluster, privacy: "shared" })).toThrow();
+    expect(() =>
+      ClusterSchema.parse({ ...cluster, privacy: "shared" }),
+    ).toThrow();
   });
 
   it("Stage parses", () => {
@@ -149,6 +159,8 @@ describe("zod round-trips", () => {
       ...role,
       oidcGroup: "/admin",
     });
-    expect(() => ProjectRoleSchema.parse({ ...role, permissions: 896 })).toThrow();
+    expect(() =>
+      ProjectRoleSchema.parse({ ...role, permissions: 896 }),
+    ).toThrow();
   });
 });

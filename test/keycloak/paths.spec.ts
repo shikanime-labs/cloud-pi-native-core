@@ -15,7 +15,11 @@ import {
   type GroupSummary,
 } from "../../src/keycloak/paths.ts";
 
-const group = (id: string, name: string, subGroups: string[]): GroupSummary => ({
+const group = (
+  id: string,
+  name: string,
+  subGroups: string[],
+): GroupSummary => ({
   id,
   name,
   subGroups: subGroups.map((sub) => ({ name: sub })),
@@ -106,7 +110,10 @@ describe("orphan detection over a fixture tree", () => {
   });
 
   it("a matching slug is never an orphan even with a console subgroup", () => {
-    const orphans = findOrphanTopGroups(tree, new Set(["current-proj", "deleted-proj"]));
+    const orphans = findOrphanTopGroups(
+      tree,
+      new Set(["current-proj", "deleted-proj"]),
+    );
     expect(orphans).toEqual([]);
   });
 
