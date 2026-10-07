@@ -9,23 +9,23 @@ import * as Layer from "effect/Layer";
  * implement GitLab's 404-tolerant delete convention (`isNotFound`).
  */
 export class GitlabError extends Data.TaggedError("GitlabError")<{
-	readonly status: number;
-	readonly method: string;
-	readonly path: string;
-	readonly message: string;
-	readonly body: unknown;
+  readonly status: number;
+  readonly method: string;
+  readonly path: string;
+  readonly message: string;
+  readonly body: unknown;
 }> {
-	get isNotFound(): boolean {
-		return this.status === 404;
-	}
+  get isNotFound(): boolean {
+    return this.status === 404;
+  }
 }
 
 /** Narrow `error` to a 404 {@link GitlabError}. */
 export const isNotFound = (error: unknown): boolean =>
-	error instanceof GitlabError && error.isNotFound;
+  error instanceof GitlabError && error.isNotFound;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-	typeof value === "object" && value !== null;
+  typeof value === "object" && value !== null;
 
 /**
  * GitLab reports entity collisions ("has already been taken" on groups,
@@ -34,14 +34,14 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  * off the serialized description, never off the status code alone.
  */
 const descriptionOf = (body: unknown): string => {
-	if (!isRecord(body)) return "";
-	const message = body.message;
-	if (typeof message === "string") return message;
-	try {
-		return JSON.stringify(message ?? "");
-	} catch {
-		return "";
-	}
+  if (!isRecord(body)) return "";
+  const message = body.message;
+  if (typeof message === "string") return message;
+  try {
+    return JSON.stringify(message ?? "");
+  } catch {
+    return "";
+  }
 };
 
 /**
@@ -51,19 +51,19 @@ const descriptionOf = (body: unknown): string => {
  * failing; a 409 username-taken on user create is NORMAL.
  */
 export const isAlreadyTaken = (error: unknown): boolean => {
-	if (!(error instanceof GitlabError)) return false;
-	const description = descriptionOf(error.body);
-	return (
-		description.includes("has already been taken") ||
-		/already exists/i.test(description) ||
-		description.includes("already marked for deletion")
-	);
+  if (!(error instanceof GitlabError)) return false;
+  const description = descriptionOf(error.body);
+  return (
+    description.includes("has already been taken") ||
+    /already exists/i.test(description) ||
+    description.includes("already marked for deletion")
+  );
 };
 
 /** Resolved GitLab connection: instance URL and access token. */
 export interface GitlabConnection {
-	readonly url: string;
-	readonly token: string;
+  readonly url: string;
+  readonly token: string;
 }
 
 /**
@@ -72,50 +72,50 @@ export interface GitlabConnection {
  * requires a token (the lazy-Credentials pattern shared across services).
  */
 export interface GitlabCredentialsService {
-	readonly resolve: Effect.Effect<GitlabConnection, GitlabError>;
+  readonly resolve: Effect.Effect<GitlabConnection, GitlabError>;
 }
 
 export class Credentials extends Context.Tag("Cpn.Gitlab.Credentials")<
-	Credentials,
-	GitlabCredentialsService
+  Credentials,
+  GitlabCredentialsService
 >() {}
 
 /** Static credentials: resolved once, then cached. */
 export const credentialsStatic = (
-	url: string,
-	token: string,
+  url: string,
+  token: string,
 ): Layer.Layer<Credentials> =>
-	Layer.effect(
-		Credentials,
-		Effect.map(Effect.cached(Effect.succeed({ url, token })), (resolve) => ({
-			resolve,
-		})),
-	);
+  Layer.effect(
+    Credentials,
+    Effect.map(Effect.cached(Effect.succeed({ url, token })), (resolve) => ({
+      resolve,
+    })),
+  );
 
 /** Dynamic credentials from any effect; resolved once, then cached. */
 export const credentialsLayer = (
-	resolve: Effect.Effect<GitlabConnection, GitlabError>,
+  resolve: Effect.Effect<GitlabConnection, GitlabError>,
 ): Layer.Layer<Credentials> =>
-	Layer.effect(
-		Credentials,
-		Effect.map(Effect.cached(resolve), (cached) => ({ resolve: cached })),
-	);
+  Layer.effect(
+    Credentials,
+    Effect.map(Effect.cached(resolve), (cached) => ({ resolve: cached })),
+  );
 
 /**
  * Layer used when no credentials were provided — every resolve fails with
  * a descriptive {@link GitlabError} at first use, not at layer build.
  */
 export const credentialsUnavailable: Layer.Layer<Credentials> = Layer.succeed(
-	Credentials,
-	{
-		resolve: Effect.fail(
-			new GitlabError({
-				status: 0,
-				method: "CONFIG",
-				path: "Cpn.Gitlab.Credentials",
-				message: "GitLab credentials not provided (pass a Credentials layer)",
-				body: null,
-			}),
-		),
-	},
+  Credentials,
+  {
+    resolve: Effect.fail(
+      new GitlabError({
+        status: 0,
+        method: "CONFIG",
+        path: "Cpn.Gitlab.Credentials",
+        message: "GitLab credentials not provided (pass a Credentials layer)",
+        body: null,
+      }),
+    ),
+  },
 );

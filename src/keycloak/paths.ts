@@ -29,8 +29,7 @@ export const joinGroupPath = (...parts: readonly string[]): string =>
 
 export const isNonEmptyGroupPath = (
   value: string | undefined,
-): value is string =>
-  typeof value === "string" && value.trim().length > 0;
+): value is string => typeof value === "string" && value.trim().length > 0;
 
 export const toGroupPath = (value: string | undefined): string | undefined => {
   if (!isNonEmptyGroupPath(value)) return undefined;

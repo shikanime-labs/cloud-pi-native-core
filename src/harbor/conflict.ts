@@ -4,25 +4,25 @@ import * as Schema from "effect/Schema";
  * A 4xx/5xx response, carrying the raw (unparsed) body Harbor sent.
  */
 export interface HarborErrorResponse {
-	readonly status: number;
-	readonly body: unknown;
+  readonly status: number;
+  readonly body: unknown;
 }
 
 export function parseErrorBody(body: unknown): unknown {
-	if (body === null || body === undefined) return null;
-	try {
-		return typeof body === "string" && body.length > 0
-			? JSON.parse(body)
-			: body;
-	} catch {
-		return null;
-	}
+  if (body === null || body === undefined) return null;
+  try {
+    return typeof body === "string" && body.length > 0
+      ? JSON.parse(body)
+      : body;
+  } catch {
+    return null;
+  }
 }
 
 const errorBodySchema = Schema.Struct({
-	errors: Schema.Array(
-		Schema.Struct({ code: Schema.String, message: Schema.String }),
-	),
+  errors: Schema.Array(
+    Schema.Struct({ code: Schema.String, message: Schema.String }),
+  ),
 });
 
 /**
@@ -30,18 +30,18 @@ const errorBodySchema = Schema.Struct({
  * "already has retention policy" duplicate without matching status alone.
  */
 export function harborErrorMessage(
-	response: HarborErrorResponse,
+  response: HarborErrorResponse,
 ): string | undefined {
-	const parsed = Schema.decodeUnknownEither(errorBodySchema)(
-		parseErrorBody(response.body),
-	);
-	if (parsed._tag !== "Right") return undefined;
-	const first = parsed.right.errors[0];
-	return first === undefined ? undefined : first.message;
+  const parsed = Schema.decodeUnknownEither(errorBodySchema)(
+    parseErrorBody(response.body),
+  );
+  if (parsed._tag !== "Right") return undefined;
+  const first = parsed.right.errors[0];
+  return first === undefined ? undefined : first.message;
 }
 
 const conflictBodySchema = Schema.Struct({
-	errors: Schema.Array(Schema.Struct({ code: Schema.String })),
+  errors: Schema.Array(Schema.Struct({ code: Schema.String })),
 });
 
 /**
@@ -51,15 +51,15 @@ const conflictBodySchema = Schema.Struct({
  * message — and is deliberately NOT a conflict here.
  */
 export function isRegistryConflict(response: HarborErrorResponse): boolean {
-	if (response.status === 409) return true;
-	if (response.status !== 400) return false;
-	const parsed = Schema.decodeUnknownEither(conflictBodySchema)(
-		parseErrorBody(response.body),
-	);
-	return (
-		parsed._tag === "Right" &&
-		parsed.right.errors.some((error) => error.code === "CONFLICT")
-	);
+  if (response.status === 409) return true;
+  if (response.status !== 400) return false;
+  const parsed = Schema.decodeUnknownEither(conflictBodySchema)(
+    parseErrorBody(response.body),
+  );
+  return (
+    parsed._tag === "Right" &&
+    parsed.right.errors.some((error) => error.code === "CONFLICT")
+  );
 }
 
 /**
@@ -67,7 +67,7 @@ export function isRegistryConflict(response: HarborErrorResponse): boolean {
  * contains "already has retention policy".
  */
 export function isRetentionDuplicate(response: HarborErrorResponse): boolean {
-	if (response.status !== 400) return false;
-	const message = harborErrorMessage(response);
-	return message?.includes("already has retention policy") === true;
+  if (response.status !== 400) return false;
+  const message = harborErrorMessage(response);
+  return message?.includes("already has retention policy") === true;
 }
