@@ -1,12 +1,12 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:best-practices", "security:openssf-scorecard"],
-  "nix": { "enabled": true },
-  "postUpgradeTasks": {
-    "allowedCommands": ["nix fmt"],
-    "commands": ["nix fmt"],
-    "executionMode": "branch",
-    "fileFilters": ["**/*.nix"],
-    "installTools": { "nix": {} }
-  }
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:best-practices", "security:openssf-scorecard"],
+	"nix": { "enabled": true },
+	"postUpgradeTasks": {
+		"allowedCommands": ["nix fmt"],
+		"commands": ["nix fmt"],
+		"executionMode": "branch",
+		"fileFilters": ["**/*.nix"],
+		"installTools": { "nix": {} }
+	}
 }
