@@ -167,7 +167,7 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.0.0
+        specifier: 2.5.15
         version: 2.5.15
 
   apps/console-api:
@@ -189,13 +189,13 @@ importers:
         version: 4.0.2
     devDependencies:
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 26.6.4
         version: 26.6.4
       typescript:
-        specifier: ^7.0.0
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.0
+        specifier: 5.0.3
         version: 5.0.3(@types/node@26.6.4)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1))
 
   apps/example:
@@ -211,10 +211,10 @@ importers:
         version: 4.0.2
     devDependencies:
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 26.6.4
         version: 26.6.4
       typescript:
-        specifier: ^7.0.0
+        specifier: 7.0.2
         version: 7.0.2
 
   packages/core:
@@ -224,25 +224,25 @@ importers:
         version: 2.9.1
     devDependencies:
       '@effect/vitest':
-        specifier: ^4.0.1
+        specifier: 4.0.1
         version: 4.0.1(effect@4.0.2)(vitest@5.0.3(@types/node@26.6.4)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1)))
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 26.6.4
         version: 26.6.4
       alchemy:
         specifier: 2.0.0-beta.81
         version: 2.0.0-beta.81(@effect/platform-node@4.0.2(effect@4.0.2)(redis@6.3.0))(@effect/vitest@4.0.1(effect@4.0.2)(vitest@5.0.3(@types/node@26.6.4)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1))))(@types/node@26.6.4)(effect@4.0.2)(hono@4.11.4)(typescript@7.0.2)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1))(ws@8.22.0)
       effect:
-        specifier: ^4.0.0
+        specifier: 4.0.2
         version: 4.0.2
       typescript:
-        specifier: ^7.0.0
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.0
+        specifier: 5.0.3
         version: 5.0.3(@types/node@26.6.4)(vite@7.3.7(@types/node@26.6.4)(yaml@2.9.1))
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
 
 packages:
