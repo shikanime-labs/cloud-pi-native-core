@@ -73,9 +73,10 @@ const projectSchema = Schema.Struct({
 	name: Schema.String,
 	path: Schema.String,
 	path_with_namespace: Schema.String,
-	topics: Schema.optionalWith(Schema.Array(Schema.String), {
-		default: () => [],
-	}),
+	topics: Schema.Array(Schema.String).pipe(
+		Schema.optional,
+		Schema.withDecodingDefault(Effect.succeed([])),
+	),
 });
 
 const userSchema = Schema.Struct({
@@ -91,11 +92,9 @@ const memberSchema = Schema.Struct({
 	username: Schema.String,
 });
 
-const nullableDate = Schema.optionalWith(
-	Schema.Union(Schema.String, Schema.Null),
-	{
-		default: () => null,
-	},
+const nullableDate = Schema.Union([Schema.String, Schema.Null]).pipe(
+	Schema.optional,
+	Schema.withDecodingDefault(Effect.succeed(null)),
 );
 
 const groupTokenSchema = Schema.Struct({
@@ -108,30 +107,31 @@ const groupTokenSchema = Schema.Struct({
 const groupTokenCreatedSchema = Schema.Struct({
 	id: Schema.Number,
 	name: Schema.String,
-	created_at: Schema.optionalWith(Schema.String, {
-		default: () => new Date(0).toISOString(),
-	}),
+	created_at: Schema.String.pipe(
+		Schema.optional,
+		Schema.withDecodingDefault(Effect.succeed(new Date(0).toISOString())),
+	),
 	expires_at: nullableDate,
 	token: Schema.String,
 });
 
 /** Parse an unknown body, throwing a descriptive {@link GitlabError}. */
-const parse = <A, I>(
-	schema: Schema.Schema<A, I>,
+const parse = <S extends Schema.ConstraintDecoder<unknown>>(
+	schema: S,
 	body: unknown,
 	ctx: { method: string; path: string },
-): A => {
-	const result = Schema.decodeUnknownEither(schema)(body);
-	if (result._tag === "Left") {
+): S["Type"] => {
+	try {
+		return Schema.decodeUnknownSync(schema)(body);
+	} catch (error) {
 		throw new GitlabError({
 			status: 0,
 			method: ctx.method,
 			path: ctx.path,
-			message: `Unexpected GitLab response shape: ${String(result.left).slice(0, 200)}`,
+			message: `Unexpected GitLab response shape: ${String(error).slice(0, 200)}`,
 			body: null,
 		});
 	}
-	return result.right;
 };
 
 const toGroup = (raw: typeof groupSchema.Type): GitlabGroup => ({
@@ -146,7 +146,7 @@ const toProject = (raw: typeof projectSchema.Type): GitlabProject => ({
 	name: raw.name,
 	path: raw.path,
 	pathWithNamespace: raw.path_with_namespace,
-	topics: raw.topics,
+	topics: raw.topics ?? [],
 });
 
 const toUser = (raw: typeof userSchema.Type): GitlabUser => ({
@@ -176,7 +176,7 @@ const toCreatedToken = (
 ): GitlabGroupAccessTokenCreated => ({
 	id: raw.id,
 	name: raw.name,
-	createdAt: raw.created_at,
+	createdAt: raw.created_at ?? new Date(0).toISOString(),
 	expiresAt: raw.expires_at ?? undefined,
 	token: raw.token,
 });
@@ -285,10 +285,10 @@ export interface GitlabClientService {
 	) => Effect.Effect<void, GitlabError>;
 }
 
-export class GitlabClient extends Context.Tag("Cpn.Gitlab.GitlabClient")<
+export class GitlabClient extends Context.Service<
 	GitlabClient,
 	GitlabClientService
->() {}
+>()("Cpn.Gitlab.GitlabClient") {}
 
 /** `Effect.tryPromise` mapping any throw onto a {@link GitlabError}. */
 const tryPromise = <A>(
@@ -367,12 +367,12 @@ export const GitlabClientLive: Layer.Layer<GitlabClient, never, Credentials> =
 					return response;
 				});
 
-			const sendJson = <A, I>(
+			const sendJson = <S extends Schema.ConstraintDecoder<unknown>>(
 				method: string,
 				path: string,
 				body: unknown | undefined,
-				schema: Schema.Schema<A, I>,
-			): Effect.Effect<A, GitlabError> =>
+				schema: S,
+			): Effect.Effect<S["Type"], GitlabError> =>
 				Effect.gen(function* () {
 					const response = yield* send(method, path, body);
 					return parse(
@@ -384,12 +384,12 @@ export const GitlabClientLive: Layer.Layer<GitlabClient, never, Credentials> =
 
 			// ponytail: offset pagination (`per_page`+`page` until a short
 			// page); switch to keyset/cursor pagination if an endpoint rejects it.
-			const paginate = <A, I>(
+			const paginate = <S extends Schema.ConstraintDecoder<unknown>>(
 				path: string,
-				schema: Schema.Schema<A, I>,
-			): Effect.Effect<readonly A[], GitlabError> =>
+				schema: S,
+			): Effect.Effect<readonly S["Type"][], GitlabError> =>
 				Effect.gen(function* () {
-					const out: A[] = [];
+					const out: S["Type"][] = [];
 					let page = 1;
 					for (;;) {
 						const separator = path.includes("?") ? "&" : "?";

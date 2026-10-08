@@ -48,7 +48,7 @@ const upsertMount = (client: VaultClientService, name: string) =>
 		yield* client
 			.createSysMount(name, createBody)
 			.pipe(
-				Effect.catchAll((error: VaultError) =>
+				Effect.catch((error: VaultError) =>
 					error.status === 400
 						? client.tuneSysMount(name, tuneBody)
 						: Effect.fail(error),
@@ -61,7 +61,7 @@ const deleteMount = (client: VaultClientService, name: string) =>
 	client
 		.deleteSysMount(name)
 		.pipe(
-			Effect.catchAll((error) =>
+			Effect.catch((error) =>
 				isNotFound(error) ? Effect.void : Effect.fail(error),
 			),
 		);

@@ -5,8 +5,8 @@
 import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import type { ProjectProps } from "@cpn/core/src/composite/derive.ts";
-import { HttpApiBuilder } from "@effect/platform";
 import * as Effect from "effect/Effect";
+import { HttpApiBuilder } from "effect/http-api";
 import type * as Schema from "effect/Schema";
 import {
 	api,
@@ -82,9 +82,9 @@ export const projectHandlers = (store: ProjectStore, deployer: Deployer) =>
 			.handle("createProject", ({ payload }) =>
 				createProject(store, deployer, payload),
 			)
-			.handle("getProject", ({ path }) => getProject(store, path.projectId))
-			.handle("deleteProject", ({ path }) =>
-				deleteProject(store, deployer, path.projectId),
+			.handle("getProject", ({ params }) => getProject(store, params.projectId))
+			.handle("deleteProject", ({ params }) =>
+				deleteProject(store, deployer, params.projectId),
 			),
 	);
 

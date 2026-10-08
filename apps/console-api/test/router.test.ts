@@ -1,12 +1,16 @@
 /**
  * HTTP tier — exercises the real router (API + OpenAPI + MCP routes) through
- * HttpLayerRouter.toWebHandler with an in-memory store and a no-op deployer.
+ * HttpRouter.toWebHandler with an in-memory store and a no-op deployer.
  * This is the test that catches surface drift between the manifest and the
  * handlers, per-route status codes, and MCP protocol behavior.
  */
 
-import { HttpLayerRouter } from "@effect/platform";
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
+import { HttpRouter } from "effect/http";
+import { layerWeak as EtagLayer } from "effect/http/Etag";
+import { layer as HttpPlatformLayer } from "effect/http/HttpPlatform";
+import * as Layer from "effect/Layer";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Deployer, ProjectStore } from "../src/contract.ts";
 import { routerLayer } from "../src/router.ts";
@@ -63,14 +67,15 @@ let handler: ((request: Request) => Promise<Response>) | undefined;
 let dispose: (() => Promise<void>) | undefined;
 
 beforeEach(async () => {
-	const web = HttpLayerRouter.toWebHandler(
-		// ponytail: addHttpApi statically requires FileSystem/Path/HttpPlatform
-		// (swagger static files), but none of our routes touch them, so the
-		// erased requirement is never built — and platform-node can't be
-		// imported at test time (effect 3.22.2 lacks ./FileSystem).
-		routerLayer(memoryStore(), memoryDeployer()) as unknown as Parameters<
-			typeof HttpLayerRouter.toWebHandler
-		>[0],
+	const web = HttpRouter.toWebHandler(
+		routerLayer(memoryStore(), memoryDeployer()).pipe(
+			Layer.provide(
+				Layer.provideMerge(
+					Layer.mergeAll(EtagLayer, HttpPlatformLayer),
+					Layer.mergeAll(NodeFileSystem.layer, NodePath.layer),
+				),
+			),
+		),
 	);
 	handler = web.handler;
 	dispose = web.dispose;
@@ -91,9 +96,10 @@ const json = async (method: string, path: string, payload?: unknown) => {
 		}),
 	);
 	if (!response) throw new Error("handler not ready");
+	const text = await response.text();
 	return {
 		status: response.status,
-		body: response.status === 204 ? null : await response.json(),
+		body: response.status === 204 || text === "" ? null : JSON.parse(text),
 	};
 };
 

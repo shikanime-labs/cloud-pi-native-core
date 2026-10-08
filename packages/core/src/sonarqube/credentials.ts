@@ -58,10 +58,10 @@ export interface SonarqubeCredentialsService {
 	readonly resolve: Effect.Effect<SonarqubeConnection, SonarqubeError>;
 }
 
-export class Credentials extends Context.Tag("Cpn.Sonarqube.Credentials")<
+export class Credentials extends Context.Service<
 	Credentials,
 	SonarqubeCredentialsService
->() {}
+>()("Cpn.Sonarqube.Credentials") {}
 
 /** Static credentials: resolved once, then cached. */
 export const credentialsStatic = (

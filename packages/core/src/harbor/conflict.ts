@@ -1,4 +1,5 @@
 import * as Schema from "effect/Schema";
+import { parseOrUndefined } from "./project.ts";
 
 /**
  * A 4xx/5xx response, carrying the raw (unparsed) body Harbor sent.
@@ -32,11 +33,11 @@ const errorBodySchema = Schema.Struct({
 export function harborErrorMessage(
 	response: HarborErrorResponse,
 ): string | undefined {
-	const parsed = Schema.decodeUnknownEither(errorBodySchema)(
+	const parsed = parseOrUndefined(
+		errorBodySchema,
 		parseErrorBody(response.body),
 	);
-	if (parsed._tag !== "Right") return undefined;
-	const first = parsed.right.errors[0];
+	const first = parsed?.errors[0];
 	return first === undefined ? undefined : first.message;
 }
 
@@ -53,13 +54,11 @@ const conflictBodySchema = Schema.Struct({
 export function isRegistryConflict(response: HarborErrorResponse): boolean {
 	if (response.status === 409) return true;
 	if (response.status !== 400) return false;
-	const parsed = Schema.decodeUnknownEither(conflictBodySchema)(
+	const parsed = parseOrUndefined(
+		conflictBodySchema,
 		parseErrorBody(response.body),
 	);
-	return (
-		parsed._tag === "Right" &&
-		parsed.right.errors.some((error) => error.code === "CONFLICT")
-	);
+	return parsed?.errors.some((error) => error.code === "CONFLICT") === true;
 }
 
 /**

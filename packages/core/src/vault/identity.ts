@@ -103,7 +103,7 @@ export const IdentityGroupProvider = () =>
 								canonical_id: group.id,
 							})
 							.pipe(
-								Effect.catchAll((error: VaultError) =>
+								Effect.catch((error: VaultError) =>
 									error.status === 400 ? Effect.void : Effect.fail(error),
 								),
 							);
@@ -116,7 +116,7 @@ export const IdentityGroupProvider = () =>
 					yield* client
 						.deleteIdentityGroupByName(projectGroupName(olds.slug, olds.scope))
 						.pipe(
-							Effect.catchAll((error) =>
+							Effect.catch((error) =>
 								isNotFound(error) ? Effect.void : Effect.fail(error),
 							),
 						);

@@ -36,6 +36,17 @@ export interface Project
  */
 export const Project = Resource<Project>("Cpn.Harbor.Project");
 
+export const parseOrUndefined = <S extends Schema.ConstraintDecoder<unknown>>(
+	schema: S,
+	body: unknown,
+): S["Type"] | undefined => {
+	try {
+		return Schema.decodeUnknownSync(schema)(body);
+	} catch {
+		return undefined;
+	}
+};
+
 const decodeProject = (body: unknown): HarborProject | undefined => {
 	const schema = Schema.Struct({
 		project_id: Schema.Number,
@@ -43,17 +54,17 @@ const decodeProject = (body: unknown): HarborProject | undefined => {
 		metadata: Schema.optional(
 			Schema.Struct({
 				retention_id: Schema.optional(
-					Schema.Union(Schema.Number, Schema.String),
+					Schema.Union([Schema.Number, Schema.String]),
 				),
 			}),
 		),
 	});
-	const parsed = Schema.decodeUnknownEither(schema)(body);
-	if (parsed._tag !== "Right") return undefined;
-	const retentionId = Number(parsed.right.metadata?.retention_id);
+	const parsed = parseOrUndefined(schema, body);
+	if (parsed === undefined) return undefined;
+	const retentionId = Number(parsed.metadata?.retention_id);
 	return {
-		projectId: parsed.right.project_id,
-		name: parsed.right.name,
+		projectId: parsed.project_id,
+		name: parsed.name,
 		retentionId: Number.isFinite(retentionId) ? retentionId : null,
 	};
 };

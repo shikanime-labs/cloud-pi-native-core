@@ -108,10 +108,10 @@ const projectsSearchSchema = Schema.Struct({
 			key: Schema.String,
 			name: Schema.String,
 			qualifier: Schema.String,
-			visibility: Schema.Union(
+			visibility: Schema.Union([
 				Schema.Literal("private"),
 				Schema.Literal("public"),
-			),
+			]),
 		}),
 	),
 });
@@ -123,21 +123,21 @@ const tokenGenerateSchema = Schema.Struct({
 });
 
 /** Parse an unknown body into a descriptive {@link SonarqubeError} on mismatch. */
-const parse = <A, I>(
-	schema: Schema.Schema<A, I>,
+const parse = <S extends Schema.ConstraintDecoder<unknown>>(
+	schema: S,
 	body: unknown,
 	ctx: { method: string; path: string },
-): A => {
-	const result = Schema.decodeUnknownEither(schema)(body);
-	if (result._tag === "Left") {
+): S["Type"] => {
+	try {
+		return Schema.decodeUnknownSync(schema)(body);
+	} catch (error) {
 		throw new SonarqubeError({
 			status: 0,
 			method: ctx.method,
 			path: ctx.path,
-			message: `Unexpected SonarQube response shape: ${String(result.left).slice(0, 200)}`,
+			message: `Unexpected SonarQube response shape: ${String(error).slice(0, 200)}`,
 		});
 	}
-	return result.right;
 };
 
 /**
@@ -221,10 +221,10 @@ export interface SonarqubeClientService {
 	) => Effect.Effect<void, SonarqubeError>;
 }
 
-export class SonarqubeClient extends Context.Tag("Cpn.Sonarqube.Client")<
+export class SonarqubeClient extends Context.Service<
 	SonarqubeClient,
 	SonarqubeClientService
->() {}
+>()("Cpn.Sonarqube.Client") {}
 
 /** SonarQube search API page size (server caps `ps` at 500). */
 const PAGE_SIZE = 100;

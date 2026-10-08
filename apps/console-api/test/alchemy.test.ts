@@ -10,6 +10,7 @@ import { mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Schema from "effect/Schema";
 import { describe, expect, it } from "vitest";
 import { CreateProjectSchema } from "../src/contract.ts";
@@ -45,24 +46,24 @@ import { propsFrom } from "../src/handlers.ts";
 
 describe("wire body to Cpn.Project props", () => {
 	it("decodes the legacy-shaped body", () => {
-		const decoded = Schema.decodeUnknownEither(CreateProjectSchema)(wireBody);
-		expect(decoded._tag).toBe("Right");
+		const decoded = Schema.decodeUnknownExit(CreateProjectSchema)(wireBody);
+		expect(Exit.isSuccess(decoded)).toBe(true);
 	});
 
 	it("maps number permissions to bigint", () => {
-		const decoded = Schema.decodeUnknownEither(CreateProjectSchema)(wireBody);
-		if (decoded._tag === "Left") throw decoded.left;
-		const props = propsFrom(decoded.right);
+		const decoded = Schema.decodeUnknownExit(CreateProjectSchema)(wireBody);
+		if (Exit.isFailure(decoded)) throw decoded.cause;
+		const props = propsFrom(decoded.value);
 		expect(props.roles[0]?.permissions).toBe(896n);
 		expect(typeof props.roles[0]?.permissions).toBe("bigint");
 	});
 
 	it("rejects non-managed role types like the legacy enum would", () => {
-		const decoded = Schema.decodeUnknownEither(CreateProjectSchema)({
+		const decoded = Schema.decodeUnknownExit(CreateProjectSchema)({
 			...wireBody,
 			roles: [{ ...wireBody.roles[0], type: "custom" }],
 		});
-		expect(decoded._tag).toBe("Left");
+		expect(Exit.isFailure(decoded)).toBe(true);
 	});
 });
 

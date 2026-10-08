@@ -91,7 +91,7 @@ export const PermissionTemplateProvider = () =>
 						yield* client
 							.deletePermissionTemplate(name)
 							.pipe(
-								Effect.catchAll((error) =>
+								Effect.catch((error) =>
 									isNotFound(error) ? Effect.void : Effect.fail(error),
 								),
 							);

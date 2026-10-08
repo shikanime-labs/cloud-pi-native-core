@@ -9,15 +9,15 @@
  */
 
 import { createServer } from "node:http";
-import { HttpLayerRouter } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
+import { HttpRouter } from "effect/http";
 import * as Layer from "effect/Layer";
 import { alchemyDeployer } from "./deployer.ts";
 import { localProjectStore } from "./handlers.ts";
 import { routerLayer } from "./router.ts";
 
-const ServerLive = HttpLayerRouter.serve(
+const ServerLive = HttpRouter.serve(
 	// ponytail: local store + alchemy deployer swap for the database +
 	// authenticated store in pass two, behind the same interfaces.
 	routerLayer(localProjectStore(), alchemyDeployer()),
