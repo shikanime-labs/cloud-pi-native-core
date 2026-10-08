@@ -5,13 +5,20 @@ provisioning as Infrastructure-as-Effects. TypeScript + Effect.
 
 ## Structure
 
-- `src/` — resource types and provider layers, one directory per service
+pnpm monorepo.
+
+- `packages/core/` — the resource library: `src/` resource types and provider
+  layers, one directory per service
   (`keycloak/`, `vault/`, `gitlab/`, `sonarqube/`, `harbor/`, `nexus/`,
   `argocd/`) plus `core/` for the domain model (Project, Zone, Cluster, Stage,
   Environment, Repository, roles, members)
+- `apps/console-api/` — the deployable console API service (legacy project
+  surface + OpenAPI manifest over the core composites)
+- `apps/example/` — the full-deployment example stack
 - `docs/audit/` — the console audit that grounds every resource; update when
   the console modules move
-- `test/` — `alchemy/Test/Vitest` provider lifecycle tests
+- `packages/core/test/` — `alchemy/Test/Vitest` provider lifecycle tests;
+  `apps/console-api/test/` — conformance, router and alchemy-mapping tiers
 
 ## Conventions
 

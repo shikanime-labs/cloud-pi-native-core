@@ -1,25 +1,12 @@
 {
-  "name": "cloud-pi-native-core",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "format": "biome check --write .",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "yaml": "^2.9.1"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "@effect/vitest": "^4.0.1",
-    "@types/node": "^26.6.4",
-    "alchemy": "2.0.0-beta.81",
-    "effect": "^3.19.0",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4",
-    "zod": "^4.6.5"
-  },
-  "packageManager": "pnpm@10.20.0"
+	"name": "cloud-pi-native",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.20.0",
+	"scripts": {
+		"format": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.0.0"
+	}
 }

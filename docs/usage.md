@@ -26,7 +26,7 @@ Peer requirements: `alchemy@2.0.0-beta.81`, `effect@^3.19`, `zod@^4`.
 There is no root barrel; import per service:
 
 ```ts
-import { ProjectGroups } from "cloud-pi-native-core/src/keycloak/index.js";
+import { ProjectGroups } from "@cpn/core/src/keycloak/index.js";
 ```
 
 (The repo builds with `tsc -p tsconfig.json`, `module: NodeNext` — the
@@ -184,13 +184,13 @@ each zone's platform-apps repo).
 
 ## Composing a full project
 
-[`examples/full.ts`](../examples/full.ts) is the whole deployment: one
+[`apps/example/full.ts`](../apps/example/full.ts) is the whole deployment: one
 `CpnProvider` block (one field per service), then resources in dependency
 order — `Zone`, `Cluster`, `AdminRole`, and one `Project` that fans out to
 every service. Later resources reference earlier ones by key (zone slug,
 cluster label), Terraform-style.
 
-Drive it with the alchemy CLI: `alchemy deploy --config examples/full.ts`
+Drive it with the alchemy CLI: `alchemy deploy --config apps/example/full.ts`
 (the default-exported `Stack` is the entrypoint). Attributes are lazy
 `Output` references — valid `Input`s for downstream props without
 unwrapping. For programmatic use: `deploy({ stack, stage })` /
@@ -210,6 +210,8 @@ Single-child domain types are aliased from the same barrel: `CpnEnvironment`
 (Keycloak role-group members). The full classification — including named
 gaps (Stage, ProjectMember) — is
 [`docs/audit/domain-remap.md`](./audit/domain-remap.md).
+the repo pins 3.22.2, so live booting is blocked upstream until the effect
+major lands — the test tiers are alchemy-free and run green regardless.
 
 `Cpn.Project` drives the existing per-service providers as children in
 dependency order (Keycloak tree, GitLab, SonarQube, Harbor, Nexus,
@@ -225,7 +227,7 @@ fed by one config object with a field per service:
 
 ```ts
 import { AdminRole, CpnProvider, Project } from
-  "cloud-pi-native-core/src/composite/index.js";
+  "@cpn/core/src/composite/index.js";
 
 const providers = CpnProvider({
   keycloak: { baseUrl, realm, /* ... */ },
@@ -255,6 +257,36 @@ Gaps: members keyed by `userId` (no email) keep their id for GitLab
 memberships but cannot be mirrored to Keycloak/GitLab users; Nexus
 platform roles stay stack-level (`Cpn.Nexus.PlatformRoles`) because
 they aggregate all projects.
+
+## The console API service (`apps/console-api/src`)
+
+The library ships a real HTTP service — the legacy console's project
+surface, provisioned through the composites. It is not an example: it is
+the deployable console replacement, one alchemy stage per project.
+
+```sh
+pnpm --filter @cpn/console-api dev   # PORT, default 8080
+```
+
+| Surface | Path | Notes |
+|---|---|---|
+| Projects API | `/api/v1/projects…` | `GET`/`POST` list/create, `GET`/`DELETE` `/{projectId}` — the legacy routes |
+| OpenAPI manifest | `/api/openapi.json` | OpenAPI 3.1, generated from the same contract as the handlers |
+
+Layering: `contract.ts` (schemas + `HttpApi`, alchemy-free) → `handlers.ts`
+(shared ops + HTTP handlers) →
+`router.ts` (composition) → `deployer.ts` (alchemy stage per project) →
+`server.ts` (node entrypoint). The store (`localProjectStore`, over
+`.alchemy/state`) and deployer are interfaces — the second pass swaps in a
+database and auth behind the same seams.
+
+Conformance is pinned by three test tiers (`apps/console-api/test/`):
+`conformance.test.ts` holds the new contract to the legacy `@ts-rest`
+router's methods, paths and status codes; `router.test.ts` exercises the
+real router via `toWebHandler` (per-route status, manifest);
+`alchemy.test.ts` pins the wire-body → `Cpn.Project` props mapping and the
+state-dir store. Known runtime limit: alchemy beta peers `effect ^4` while
+
 
 ## Related
 
