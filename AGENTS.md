@@ -35,6 +35,9 @@ pnpm monorepo.
   runtime parsing.
 - Every resource implements delete; omission of delete semantics is an audit
   finding, not a shortcut.
+- treefmt (oxfmt) is the formatting authority in CI — devlib rewrites the
+  working copy before pnpm stages run. Never add a root lint/format CI
+  script; biome (tabs) runs local-only via pnpm format.
 
 ## Main commands
 
