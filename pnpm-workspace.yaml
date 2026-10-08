@@ -1,3 +1,9 @@
 packages:
   - packages/*
   - apps/*
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+  msgpackr-extract: true
+  workerd: true
+minimumReleaseAge: 0

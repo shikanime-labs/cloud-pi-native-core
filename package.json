@@ -2,7 +2,7 @@
 	"name": "cloud-pi-native",
 	"private": true,
 	"type": "module",
-	"packageManager": "pnpm@10.34.6",
+	"packageManager": "pnpm@12.9.1",
 	"scripts": {
 		"format": "biome check --write ."
 	},
