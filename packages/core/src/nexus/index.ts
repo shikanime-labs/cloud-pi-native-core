@@ -47,9 +47,7 @@ export * from "./roles.js";
  * call — building the layer never requires credentials. Include from a
  * stack: `{ providers: Nexus.providers(() => Effect.succeed({ url, token })) }`.
  */
-export const providers = (
-	config: () => Effect.Effect<NexusConfig>,
-): Layer.Layer<never> =>
+export const providers = (config: () => Effect.Effect<NexusConfig>) =>
 	Layer.mergeAll(
 		GroupRepoProvider(),
 		MavenReposProvider(),

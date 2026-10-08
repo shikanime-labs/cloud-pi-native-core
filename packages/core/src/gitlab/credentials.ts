@@ -75,10 +75,10 @@ export interface GitlabCredentialsService {
 	readonly resolve: Effect.Effect<GitlabConnection, GitlabError>;
 }
 
-export class Credentials extends Context.Tag("Cpn.Gitlab.Credentials")<
+export class Credentials extends Context.Service<
 	Credentials,
 	GitlabCredentialsService
->() {}
+>()("Cpn.Gitlab.Credentials") {}
 
 /** Static credentials: resolved once, then cached. */
 export const credentialsStatic = (

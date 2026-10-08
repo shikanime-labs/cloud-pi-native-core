@@ -8,6 +8,7 @@
  */
 
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Schema from "effect/Schema";
 import { describe, expect, it } from "vitest";
 import {
@@ -78,9 +79,9 @@ describe("legacy contract conformance", () => {
 	it("create then list then delete converges the store", async () => {
 		const store = memoryStore();
 		const deployer = memoryDeployer();
-		const decoded = Schema.decodeUnknownEither(CreateProjectSchema)(body);
-		if (decoded._tag === "Left") throw decoded.left;
-		await Effect.runPromise(createProject(store, deployer, decoded.right));
+		const decoded = Schema.decodeUnknownExit(CreateProjectSchema)(body);
+		if (Exit.isFailure(decoded)) throw decoded.cause;
+		await Effect.runPromise(createProject(store, deployer, decoded.value));
 		expect(await Effect.runPromise(listProjects(store))).toHaveLength(1);
 		await Effect.runPromise(deleteProject(store, deployer, "dso"));
 		expect(await Effect.runPromise(listProjects(store))).toHaveLength(0);

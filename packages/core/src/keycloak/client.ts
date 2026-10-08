@@ -47,10 +47,10 @@ export interface KeycloakCredentialsService {
 	readonly resolve: Effect.Effect<KeycloakConnection, KeycloakError>;
 }
 
-export class Credentials extends Context.Tag("Cpn.Keycloak.Credentials")<
+export class Credentials extends Context.Service<
 	Credentials,
 	KeycloakCredentialsService
->() {}
+>()("Cpn.Keycloak.Credentials") {}
 
 export const credentialsStatic = (
 	connection: KeycloakConnection,
@@ -188,10 +188,10 @@ export interface KeycloakClientService {
 	) => Effect.Effect<void, KeycloakError>;
 }
 
-export class KeycloakClient extends Context.Tag("Cpn.Keycloak.KeycloakClient")<
+export class KeycloakClient extends Context.Service<
 	KeycloakClient,
 	KeycloakClientService
->() {}
+>()("Cpn.Keycloak.KeycloakClient") {}
 
 const PAGE_SIZE = 100;
 
@@ -422,7 +422,7 @@ export const KeycloakClientLive: Layer.Layer<
 		const tolerateConflict = (
 			effect: Effect.Effect<void, KeycloakError>,
 		): Effect.Effect<void, KeycloakError> =>
-			Effect.catchAll(effect, (error) =>
+			Effect.catch(effect, (error) =>
 				isKeycloakConflict(error) ? Effect.void : Effect.fail(error),
 			);
 
@@ -497,7 +497,7 @@ export const KeycloakClientLive: Layer.Layer<
 					yield* deleteGroupTreeRec(child.id);
 				}
 				yield* requestVoid("DELETE", `groups/${groupId}`).pipe(
-					Effect.catchAll((error) =>
+					Effect.catch((error) =>
 						isKeycloakNotFound(error) ? Effect.void : Effect.fail(error),
 					),
 				);

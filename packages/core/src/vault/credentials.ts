@@ -38,10 +38,10 @@ export interface VaultCredentialsService {
 	readonly resolve: Effect.Effect<VaultConnection, VaultError>;
 }
 
-export class Credentials extends Context.Tag("Cpn.Vault.Credentials")<
+export class Credentials extends Context.Service<
 	Credentials,
 	VaultCredentialsService
->() {}
+>()("Cpn.Vault.Credentials") {}
 
 /** Static credentials: resolved once, then cached. */
 export const credentialsStatic = (

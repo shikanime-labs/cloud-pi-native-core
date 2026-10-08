@@ -17,7 +17,7 @@ export const ensureExists = <A, E>(params: {
 	readonly create: () => Effect.Effect<A, E>;
 	readonly reload: () => Effect.Effect<A | undefined, E>;
 }): Effect.Effect<A | undefined, E> =>
-	Effect.catchAll(params.create(), (error) =>
+	Effect.catch(params.create(), (error) =>
 		Effect.gen(function* () {
 			if (!isAlreadyExists(error)) return yield* Effect.fail(error);
 			return yield* params.reload();
@@ -28,7 +28,7 @@ export const ensureExists = <A, E>(params: {
 export const tolerate404 = <A, E>(
 	effect: Effect.Effect<A, E>,
 ): Effect.Effect<A | undefined, E> =>
-	Effect.catchAll(effect, (error) =>
+	Effect.catch(effect, (error) =>
 		isNotFound(error) ? Effect.succeed(undefined) : Effect.fail(error),
 	);
 
@@ -66,9 +66,6 @@ export const rotateToken = (
 ): Effect.Effect<SonarqubeGeneratedToken, SonarqubeError> =>
 	Effect.gen(function* () {
 		const name = `Sonar Token for ${login}`;
-		yield* Effect.catchAll(
-			client.revokeUserToken(login, name),
-			() => Effect.void,
-		);
+		yield* Effect.catch(client.revokeUserToken(login, name), () => Effect.void);
 		return yield* client.generateUserToken(login, name);
 	});

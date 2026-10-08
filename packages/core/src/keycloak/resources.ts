@@ -42,7 +42,7 @@ const maybeAddUser = (
 			return;
 		}
 		yield* client.addUserToGroup(user.id, groupId).pipe(
-			Effect.catchAll((error) => {
+			Effect.catch((error) => {
 				if (isKeycloakNotFound(error)) {
 					return Effect.logWarning(
 						`User '${email}' gone from Keycloak, skipping addition to ${label}`,
@@ -73,7 +73,7 @@ const maybeRemoveUser = (
 			return;
 		}
 		yield* client.removeUserFromGroup(user.id, groupId).pipe(
-			Effect.catchAll((error) => {
+			Effect.catch((error) => {
 				if (isKeycloakNotFound(error)) {
 					return Effect.logWarning(
 						`User '${email}' gone from Keycloak, skipping removal from ${label}`,
@@ -264,7 +264,7 @@ export const ProjectGroupsProvider = () =>
 								yield* client
 									.deleteGroupTree(orphan.id)
 									.pipe(
-										Effect.catchAll((error) =>
+										Effect.catch((error) =>
 											Effect.logWarning(
 												`Failed to delete orphan env group ${orphan.name}: ${error.message}`,
 											),

@@ -51,28 +51,28 @@ const cpnProviders = () =>
 		...Effect.runSync(
 			Config.all({
 				keycloak: Config.all({
-					baseUrl: Config.string("KEYCLOAK_BASE_URL"),
-					realm: Config.string("KEYCLOAK_REALM"),
-					nodeAddress: Config.string("KEYCLOAK_NODE_ADDRESS"),
-					adminClientId: Config.string("KEYCLOAK_ADMIN_CLIENT_ID"),
-					adminUser: Config.string("KEYCLOAK_ADMIN_USER"),
-					adminPassword: Config.string("KEYCLOAK_ADMIN_PASSWORD"),
+					baseUrl: Config.String("KEYCLOAK_BASE_URL"),
+					realm: Config.String("KEYCLOAK_REALM"),
+					nodeAddress: Config.String("KEYCLOAK_NODE_ADDRESS"),
+					adminClientId: Config.String("KEYCLOAK_ADMIN_CLIENT_ID"),
+					adminUser: Config.String("KEYCLOAK_ADMIN_USER"),
+					adminPassword: Config.String("KEYCLOAK_ADMIN_PASSWORD"),
 				}),
 				gitlab: Config.all({
-					url: Config.string("GITLAB_URL"),
-					token: Config.string("GITLAB_TOKEN"),
+					url: Config.String("GITLAB_URL"),
+					token: Config.String("GITLAB_TOKEN"),
 				}),
 				sonarqube: Config.all({
-					url: Config.string("SONARQUBE_URL"),
-					token: Config.string("SONARQUBE_TOKEN"),
+					url: Config.String("SONARQUBE_URL"),
+					token: Config.String("SONARQUBE_TOKEN"),
 				}),
 				vault: Config.all({
-					url: Config.string("VAULT_URL"),
-					token: Config.string("VAULT_TOKEN"),
+					url: Config.String("VAULT_URL"),
+					token: Config.String("VAULT_TOKEN"),
 				}),
 				nexus: Config.all({
-					url: Config.string("NEXUS_URL"),
-					token: Config.string("NEXUS_TOKEN"),
+					url: Config.String("NEXUS_URL"),
+					token: Config.String("NEXUS_TOKEN"),
 				}),
 			}),
 		),

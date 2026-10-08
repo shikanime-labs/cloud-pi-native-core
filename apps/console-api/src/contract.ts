@@ -10,13 +10,13 @@
  */
 
 import type { ProjectProps } from "@cpn/core/src/composite/derive.ts";
+import type * as Effect from "effect/Effect";
 import {
 	HttpApi,
 	HttpApiEndpoint,
 	HttpApiGroup,
 	HttpApiSchema,
-} from "@effect/platform";
-import type * as Effect from "effect/Effect";
+} from "effect/http-api";
 import * as Schema from "effect/Schema";
 
 // JSON carries permissions as number; ProjectProps wants bigint.
@@ -61,29 +61,37 @@ export class NotFound extends Schema.TaggedError<NotFound>()("NotFound", {
 	message: Schema.String,
 }) {}
 
-const projectId = HttpApiSchema.param("projectId", Schema.String);
+const ProjectIdParams = Schema.Struct({ projectId: Schema.String });
 
 export const api = HttpApi.make("cpn").add(
 	HttpApiGroup.make("projects")
 		.add(
-			HttpApiEndpoint.get("listProjects")`/api/v1/projects`.addSuccess(
-				Schema.Array(ProjectSummary),
-			),
+			HttpApiEndpoint.get("listProjects", "/api/v1/projects", {
+				success: Schema.Array(ProjectSummary),
+			}),
 		)
 		.add(
-			HttpApiEndpoint.post("createProject")`/api/v1/projects`
-				.addSuccess(ProjectSummary, { status: 201 })
-				.setPayload(CreateProjectSchema),
+			HttpApiEndpoint.post("createProject", "/api/v1/projects", {
+				success: HttpApiSchema.status(201)(ProjectSummary),
+				payload: CreateProjectSchema,
+			}),
 		)
 		.add(
-			HttpApiEndpoint.get("getProject")`/api/v1/projects/${projectId}`
-				.addSuccess(ProjectSummary)
-				.addError(NotFound, { status: 404 }),
+			HttpApiEndpoint.get("getProject", "/api/v1/projects/:projectId", {
+				params: ProjectIdParams,
+				success: ProjectSummary,
+				error: HttpApiSchema.status(404)(NotFound),
+			}),
 		)
 		.add(
-			HttpApiEndpoint.del(
+			HttpApiEndpoint.make("DELETE")(
 				"deleteProject",
-			)`/api/v1/projects/${projectId}`.addSuccess(Schema.Void, { status: 204 }),
+				"/api/v1/projects/:projectId",
+				{
+					params: ProjectIdParams,
+					success: HttpApiSchema.NoContent,
+				},
+			),
 		),
 );
 

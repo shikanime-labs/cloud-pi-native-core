@@ -144,8 +144,7 @@ export type NexusClientService = (
 	options?: { method?: string; body?: unknown },
 ) => Effect.Effect<unknown, NexusError>;
 
-export const NexusClient =
-	Context.GenericTag<NexusClientService>("NexusClient");
+export const NexusClient = Context.Service<NexusClientService>("NexusClient");
 
 /** Live client: resolves url/token at first call, not at layer construction. */
 export const NexusClientLive = (

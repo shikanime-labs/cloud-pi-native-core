@@ -4,7 +4,8 @@
  * .toWebHandler (see test/api/router.test.ts).
  */
 
-import { HttpLayerRouter, OpenApi } from "@effect/platform";
+import { HttpRouter } from "effect/http";
+import { HttpApiBuilder, OpenApi } from "effect/http-api";
 import * as Layer from "effect/Layer";
 import type { Deployer, ProjectStore } from "./contract.ts";
 import { api } from "./contract.ts";
@@ -15,6 +16,6 @@ export const openApiSpec = OpenApi.fromApi(api);
 
 /** The full application: project routes and /api/openapi.json. */
 export const routerLayer = (store: ProjectStore, deployer: Deployer) =>
-	HttpLayerRouter.addHttpApi(api, {
+	HttpApiBuilder.layer(api, {
 		openapiPath: "/api/openapi.json",
 	}).pipe(Layer.provide(projectHandlers(store, deployer)));

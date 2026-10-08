@@ -27,6 +27,4 @@ export interface GitClient {
 	): Effect.Effect<void, GitClientError>;
 }
 
-export const ArgocdGitClient = Context.GenericTag<"ArgocdGitClient", GitClient>(
-	"ArgocdGitClient",
-);
+export const ArgocdGitClient = Context.Service<GitClient>("ArgocdGitClient");

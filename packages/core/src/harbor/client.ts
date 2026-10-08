@@ -1,8 +1,10 @@
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Schema from "effect/Schema";
 import { type HarborErrorResponse, isRegistryConflict } from "./conflict.ts";
+import { parseOrUndefined } from "./project.ts";
 
 /**
  * Basic-auth credentials for the Harbor admin API.
@@ -27,7 +29,7 @@ export class HarborHttpError extends Data.TaggedError("HarborHttpError")<{
  * The Harbor API client service. `url` and `credentials` are lazy so wiring
  * the layer never requires a configured registry.
  */
-export class HarborClient extends Context.Tag("HarborClient")<
+export class HarborClient extends Context.Service<
 	HarborClient,
 	{
 		readonly url: string;
@@ -37,7 +39,9 @@ export class HarborClient extends Context.Tag("HarborClient")<
 			init?: RequestInit,
 		) => Effect.Effect<Response, HarborHttpError>;
 	}
->() {}
+>()("HarborClient") {}
+
+export type HarborClientService = Context.Service.Shape<typeof HarborClient>;
 
 export type { HarborErrorResponse };
 export { isRegistryConflict };
@@ -51,7 +55,9 @@ const projectSchema = Schema.Struct({
 	name: Schema.String,
 	metadata: Schema.optional(
 		Schema.Struct({
-			retention_id: Schema.optional(Schema.Union(Schema.Number, Schema.String)),
+			retention_id: Schema.optional(
+				Schema.Union([Schema.Number, Schema.String]),
+			),
 		}),
 	),
 });
@@ -71,12 +77,12 @@ const toRetentionId = (raw: number | string | undefined): number | null => {
 export const decodeHarborProject = (
 	body: unknown,
 ): HarborProject | undefined => {
-	const parsed = Schema.decodeUnknownEither(projectSchema)(body);
-	if (parsed._tag !== "Right") return undefined;
+	const parsed = parseOrUndefined(projectSchema, body);
+	if (parsed === undefined) return undefined;
 	return {
-		projectId: parsed.right.project_id,
-		name: parsed.right.name,
-		retentionId: toRetentionId(parsed.right.metadata?.retention_id),
+		projectId: parsed.project_id,
+		name: parsed.name,
+		retentionId: toRetentionId(parsed.metadata?.retention_id),
 	};
 };
 
@@ -91,9 +97,9 @@ export interface HarborRobot {
 }
 
 export const decodeHarborRobot = (body: unknown): HarborRobot | undefined => {
-	const parsed = Schema.decodeUnknownEither(robotSchema)(body);
-	if (parsed._tag !== "Right") return undefined;
-	return { id: parsed.right.id, name: parsed.right.name };
+	const parsed = parseOrUndefined(robotSchema, body);
+	if (parsed === undefined) return undefined;
+	return { id: parsed.id, name: parsed.name };
 };
 
 const robotCreatedSchema = Schema.Struct({
@@ -109,12 +115,12 @@ export interface HarborRobotCreated extends HarborRobot {
 export const decodeHarborRobotCreated = (
 	body: unknown,
 ): HarborRobotCreated | undefined => {
-	const parsed = Schema.decodeUnknownEither(robotCreatedSchema)(body);
-	if (parsed._tag !== "Right") return undefined;
+	const parsed = parseOrUndefined(robotCreatedSchema, body);
+	if (parsed === undefined) return undefined;
 	return {
-		id: parsed.right.id,
-		name: parsed.right.name,
-		secret: parsed.right.secret,
+		id: parsed.id,
+		name: parsed.name,
+		secret: parsed.secret,
 	};
 };
 
@@ -137,9 +143,9 @@ const memberArraySchema = Schema.Array(memberSchema);
 export const decodeHarborMembers = (
 	body: unknown,
 ): HarborMember[] | undefined => {
-	const parsed = Schema.decodeUnknownEither(memberArraySchema)(body);
-	if (parsed._tag !== "Right") return undefined;
-	return parsed.right.map((member) => ({
+	const parsed = parseOrUndefined(memberArraySchema, body);
+	if (parsed === undefined) return undefined;
+	return parsed.map((member) => ({
 		id: member.id,
 		entityName: member.entity_name,
 		entityType: member.entity_type,
@@ -164,9 +170,9 @@ const quotaArraySchema = Schema.Array(quotaSchema);
 export const decodeHarborQuotas = (
 	body: unknown,
 ): HarborQuota[] | undefined => {
-	const parsed = Schema.decodeUnknownEither(quotaArraySchema)(body);
-	if (parsed._tag !== "Right") return undefined;
-	return parsed.right.map((quota) => ({
+	const parsed = parseOrUndefined(quotaArraySchema, body);
+	if (parsed === undefined) return undefined;
+	return parsed.map((quota) => ({
 		refId: quota.ref?.id,
 		storage: quota.hard?.storage,
 	}));
@@ -234,7 +240,7 @@ export function expectOk(
 export const makeHarborClient = (options: {
 	url: () => string;
 	credentials: () => Effect.Effect<HarborCredentials>;
-}): Context.Tag.Service<HarborClient> => {
+}): HarborClientService => {
 	let cachedUrl: string | undefined;
 	let cachedAuth: string | undefined;
 	const baseUrl = () =>

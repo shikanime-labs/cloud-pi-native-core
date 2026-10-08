@@ -54,7 +54,7 @@ export const ProjectAppRoleProvider = () =>
 					yield* client
 						.deleteAuthApproleRole(projectAppRoleName(olds.slug))
 						.pipe(
-							Effect.catchAll((error) =>
+							Effect.catch((error) =>
 								isNotFound(error) ? Effect.void : Effect.fail(error),
 							),
 						);
@@ -104,7 +104,7 @@ export const ZoneAppRoleProvider = () =>
 					yield* client
 						.deleteAuthApproleRole(zoneAppRoleName(olds.zone))
 						.pipe(
-							Effect.catchAll((error) =>
+							Effect.catch((error) =>
 								isNotFound(error) ? Effect.void : Effect.fail(error),
 							),
 						);

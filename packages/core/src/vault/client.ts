@@ -64,11 +64,11 @@ export interface VaultIdentityGroupAliasCreateRequest {
 // ---- response schemas (runtime parsing boundary: parse, don't validate) ----
 
 const sysMountsResponse = Schema.Struct({
-	data: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+	data: Schema.Record(Schema.String, Schema.Unknown),
 });
 
 const sysAuthResponse = Schema.Struct({
-	data: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+	data: Schema.Record(Schema.String, Schema.Unknown),
 });
 
 const identityGroupResponse = Schema.Struct({
@@ -87,26 +87,26 @@ const policyResponse = Schema.Struct({
 
 const kvReadResponse = Schema.Struct({
 	data: Schema.Struct({
-		data: Schema.Record({ key: Schema.String, value: Schema.String }),
+		data: Schema.Record(Schema.String, Schema.String),
 	}),
 });
 
 /** Parse an unknown body, throwing a descriptive {@link VaultError} on mismatch. */
-const parse = <A, I>(
-	schema: Schema.Schema<A, I>,
+const parse = <S extends Schema.ConstraintDecoder<unknown>>(
+	schema: S,
 	body: unknown,
 	ctx: { method: string; path: string },
-): A => {
-	const result = Schema.decodeUnknownEither(schema)(body);
-	if (result._tag === "Left") {
+): S["Type"] => {
+	try {
+		return Schema.decodeUnknownSync(schema)(body);
+	} catch (error) {
 		throw new VaultError({
 			status: 0,
 			method: ctx.method,
 			path: ctx.path,
-			message: `Unexpected Vault response shape: ${String(result.left).slice(0, 200)}`,
+			message: `Unexpected Vault response shape: ${String(error).slice(0, 200)}`,
 		});
 	}
-	return result.right;
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -236,10 +236,10 @@ export interface VaultClientService {
 	) => Effect.Effect<void, VaultError>;
 }
 
-export class VaultClient extends Context.Tag("Cpn.Vault.VaultClient")<
+export class VaultClient extends Context.Service<
 	VaultClient,
 	VaultClientService
->() {}
+>()("Cpn.Vault.VaultClient") {}
 
 /** `Effect.tryPromise` mapping any throw onto a {@link VaultError}. */
 const tryPromise = <A>(
@@ -318,7 +318,7 @@ export const VaultClientLive: Layer.Layer<VaultClient, never, Credentials> =
 			const tolerate404 = <A>(
 				effect: Effect.Effect<A, VaultError>,
 			): Effect.Effect<A | undefined, VaultError> =>
-				Effect.catchAll(effect, (error) =>
+				Effect.catch(effect, (error) =>
 					isNotFound(error) ? Effect.succeed(undefined) : Effect.fail(error),
 				);
 

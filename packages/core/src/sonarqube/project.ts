@@ -91,7 +91,7 @@ export const ProjectProvider = () =>
 					yield* client
 						.deleteProject(key)
 						.pipe(
-							Effect.catchAll((error) =>
+							Effect.catch((error) =>
 								isNotFound(error) ? Effect.void : Effect.fail(error),
 							),
 						);

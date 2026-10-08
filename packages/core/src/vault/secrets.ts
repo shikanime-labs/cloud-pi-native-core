@@ -66,7 +66,7 @@ export const SecretProvider = () =>
 					yield* client
 						.deleteKvSecret(olds.mount, olds.path)
 						.pipe(
-							Effect.catchAll((error) =>
+							Effect.catch((error) =>
 								isNotFound(error) ? Effect.void : Effect.fail(error),
 							),
 						);
