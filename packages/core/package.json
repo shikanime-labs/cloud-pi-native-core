@@ -15,7 +15,7 @@
 		"@types/node": "^26.6.4",
 		"alchemy": "2.0.0-beta.81",
 		"effect": "^3.19.0",
-		"typescript": "^5.9.3",
+		"typescript": "^7.0.0",
 		"vitest": "^3.2.4",
 		"zod": "^4.6.5"
 	}
