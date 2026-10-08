@@ -184,33 +184,18 @@ each zone's platform-apps repo).
 
 ## Composing a full project
 
-[`examples/full.ts`](../examples/full.ts) provisions one console project
-across every service, credentials from env vars:
+[`examples/full.ts`](../examples/full.ts) is the whole deployment: one
+`CpnProvider` block (one field per service), then resources in dependency
+order — `Zone`, `Cluster`, `AdminRole`, and one `Project` that fans out to
+every service. Later resources reference earlier ones by key (zone slug,
+cluster label), Terraform-style.
 
-1. **Wire credentials layers** per service (`credentialsLayer` over an
-   `Effect.succeed` of the connection, or `env` helpers reading
-   `KEYCLOAK_BASE_URL` etc.).
-2. **Build the providers layer**: `Layer.mergeAll(...)` of every
-   `<Resource>Provider()` — most services export factory functions;
-   `ProjectEnvironmentsProvider` (argocd) is a ready Layer; nexus bundles
-   all four resources behind `nexus.providers(config)`. Each client layer is
-   fed its credentials with `Layer.provide`.
-3. **Declare the stack**:
-   `Stack("cpn-project", { providers, state: localState() }, effect)` —
-   inside the effect, construct resources in dependency order (`ProjectGroup`
-   before `Repository`, `Project` before `Robot`), passing attribute
-   accessors (`projectGroup.groupId`) straight into downstream props.
-4. **Run it**: `export default` the stack (this file is a valid
-   `alchemy.run.ts` entrypoint) and drive with the alchemy CLI:
-   `alchemy deploy --config examples/full.ts`.
-
-Note on the runner API: alchemy 2.0.0-beta.81 exports **no `run()`
-function**. The entrypoints are the `Stack` factory default-exported from
-`alchemy.run.ts` (CLI-driven via `alchemy deploy` / `alchemy dev`) and the
-`deploy({ stack, stage })` / `destroy({ stack, stage })` functions from
-`alchemy/Deploy` / `alchemy/Destroy` for programmatic use. Attributes are
-lazy `Output` references — valid `Input`s for downstream props without
-unwrapping.
+Drive it with the alchemy CLI: `alchemy deploy --config examples/full.ts`
+(the default-exported `Stack` is the entrypoint). Attributes are lazy
+`Output` references — valid `Input`s for downstream props without
+unwrapping. For programmatic use: `deploy({ stack, stage })` /
+`destroy({ stack, stage })` from `alchemy/Deploy` / `alchemy/Destroy`
+(alchemy 2.0.0-beta.81 exports no `run()`).
 
 ### Composites (`src/composite`)
 
@@ -223,7 +208,7 @@ unwrapping.
 Single-child domain types are aliased from the same barrel: `CpnEnvironment`
 (ArgoCD values file), `CpnRepository` (GitLab repository), `CpnProjectRole`
 (Keycloak role-group members). The full classification — including named
-gaps (Cluster, Stage, ProjectMember) — is
+gaps (Stage, ProjectMember) — is
 [`docs/audit/domain-remap.md`](./audit/domain-remap.md).
 
 `Cpn.Project` drives the existing per-service providers as children in
