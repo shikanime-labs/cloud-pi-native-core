@@ -210,3 +210,13 @@ export const registryGroupSecretPath = (
   projectRootDir: string,
   slug: string,
 ): string => secretGroupPath(projectRootDir, slug, "REGISTRY");
+
+// ---- cluster secrets (console plugins/argocd/src/cluster.ts, zone-mounted) ----
+
+/**
+ * KV-v2 path of the ArgoCD cluster secret: the argocd plugin writes
+ * `clusters/cluster-<label>/argocd-cluster-secret` on the ZONE mount
+ * (`VaultZoneApi(zone.slug)`), not the project mount.
+ */
+export const clusterSecretPath = (cluster: string): string =>
+	`clusters/${cluster}/argocd-cluster-secret`;

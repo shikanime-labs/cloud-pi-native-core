@@ -18,8 +18,8 @@ audit docs alone). Three statuses:
 | Project | composite | 23 children: Keycloak.ProjectGroups, Gitlab.{ProjectGroup,User,Repository,MirrorRobot,GroupMembers}, Sonarqube.{Project,ProjectPermissions,PermissionTemplate}, Harbor.{Project,Robot,Retention,GroupMembers}, Nexus.{MavenRepos,GroupRepo,ProjectRoles}, Vault.{ProjectMount,ProjectPolicies,ProjectAppRole,Secret,IdentityGroup}, Argocd.ProjectEnvironments | `Cpn.Project` (src/composite/project.ts) |
 | AdminRole | composite | Keycloak.AdminRoleGroup | `Cpn.AdminRole` (src/composite/admin-role.ts). Nexus platform roles stay stack-level (Cpn.Nexus.PlatformRoles) |
 | Zone | composite | Vault.ZoneMount, Vault.ZonePolicy, Vault.ZoneAppRole | `Cpn.Zone` (src/composite/zone.ts); `label`/`argocdUrl` are console-DB metadata no service child consumes |
-| Cluster | gap | none | Referenced only as string props (`clusterLabel`, `clusterPrivacy`) threaded into project-scoped resources; kubeconfig secret, quota, and privacy fields have no extracted resource |
-| Stage | gap | none | Name-only spec; not even a path segment in the extracted `valuesFilePath` (audit path has `{stage}`, extraction dropped it) |
+| Cluster | composite | Vault.KubeconfigSecret | `Cpn.Cluster` (src/composite/cluster.ts); the console argocd plugin writes `clusters/cluster-{label}/argocd-cluster-secret` on the zone mount — `privacy`, quota and `secretName` stay console-DB metadata no service child consumes |
+| Stage | gap | none | Name-only spec; verified against console sources (`plugins/argocd/src/functions.ts` `getValueFilePath` and `apps/server-nestjs/.../argocd.service.ts` `formatEnvironmentValuesFilePath`): the values path is `{project}/{cluster}/{environment}/values.yaml` with NO stage segment — the earlier audit claim of `{stage}` was wrong, the extraction already matches console |
 | Environment | alias | Argocd.EnvironmentValues | `CpnEnvironment`; the Keycloak RO/RW env groups ride inside Keycloak.ProjectGroups (a Project child), not standalone |
 | Repository | alias | Gitlab.Repository | `CpnRepository` |
 | ProjectRole | alias | Keycloak.RoleGroupMembers | `CpnProjectRole`; per-suffix membership keyed `slug`+`suffix`; GitLab/Nexus role mapping is a Project child, not per-role |
@@ -42,5 +42,5 @@ barrel.
 ## Gap policy
 
 Gaps are named, not stubbed. Closing one means extracting the missing
-per-service resources first (e.g. a Vault kubeconfig secret for Cluster),
+per-service resources first (e.g. `Vault.KubeconfigSecret` for Cluster),
 then reclassifying here by actual fan-out.

@@ -3,6 +3,7 @@ import {
   appAdminPolicyName,
   appRoleBody,
   DEFAULT_GROUP_PATH_SUFFIXES,
+  clusterSecretPath,
   gitlabGroupSecretPath,
   gitlabMirrorCredPath,
   projectGroupName,
@@ -172,6 +173,11 @@ describe("KV secret paths", () => {
     );
     expect(registryGroupSecretPath("projects", "cpged")).toBe(
       "projects/cpged/REGISTRY",
+    );
+  });
+  it("cluster secret lives on the zone mount under clusters/", () => {
+    expect(clusterSecretPath("cluster-1")).toBe(
+      "clusters/cluster-1/argocd-cluster-secret",
     );
   });
 });
