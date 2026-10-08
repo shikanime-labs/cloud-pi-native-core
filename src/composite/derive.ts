@@ -360,6 +360,44 @@ export const adminRoleCreateOrder = [
 export type AdminRoleChildKind = (typeof adminRoleCreateOrder)[number];
 
 // ---------------------------------------------------------------------------
+// Cpn.Zone props + child derivation. The zone's whole service footprint is
+// Vault-side (docs/audit/vault.md): KV mount `zone-<slug>`, tech-readonly
+// policy, AppRole. `label`/`argocdUrl` are console-DB metadata no service
+// child consumes, so they stay out of the props (see domain-remap.md).
+// ---------------------------------------------------------------------------
+
+/** Core-domain zone; `slug` keys every Vault child name. */
+export interface ZoneProps {
+	/** Zone slug (console: unique, ≤10 chars) — THE join key. */
+	readonly slug: string;
+}
+
+/** Static child props; every Vault child keys on the zone slug alone. */
+export interface ZoneChildProps {
+	readonly vaultMount: { readonly zone: string };
+	readonly vaultPolicy: { readonly zone: string };
+	readonly vaultAppRole: { readonly zone: string };
+}
+
+export const deriveZoneChildProps = (props: ZoneProps): ZoneChildProps => ({
+	vaultMount: { zone: props.slug },
+	vaultPolicy: { zone: props.slug },
+	vaultAppRole: { zone: props.slug },
+});
+
+export const zoneCreateOrder = [
+	"vaultMount",
+	"vaultPolicy",
+	"vaultAppRole",
+] as const satisfies readonly string[];
+
+export type ZoneChildKind = (typeof zoneCreateOrder)[number];
+
+export const zoneDeleteOrder: readonly ZoneChildKind[] = [
+	...zoneCreateOrder,
+].reverse();
+
+// ---------------------------------------------------------------------------
 // CpnProvider config — one field per service client. Pure shape: the
 // connection types are imported type-only, so tests can check the shape
 // without loading alchemy.

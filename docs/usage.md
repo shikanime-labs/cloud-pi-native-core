@@ -218,6 +218,13 @@ unwrapping.
 |---|---|---|
 | `Cpn.Project` | One console project across every service, as one resource | `slug`, `name`, `owner`, `roles`, `members`, `environments` |
 | `Cpn.AdminRole` | One platform admin role (Keycloak group + members) | `role`, `userEmails` |
+| `Cpn.Zone` | One zone's Vault footprint: mount, policy, AppRole | `slug` |
+
+Single-child domain types are aliased from the same barrel: `CpnEnvironment`
+(ArgoCD values file), `CpnRepository` (GitLab repository), `CpnProjectRole`
+(Keycloak role-group members). The full classification — including named
+gaps (Cluster, Stage, ProjectMember) — is
+[`docs/audit/domain-remap.md`](./audit/domain-remap.md).
 
 `Cpn.Project` drives the existing per-service providers as children in
 dependency order (Keycloak tree, GitLab, SonarQube, Harbor, Nexus,

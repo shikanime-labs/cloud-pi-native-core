@@ -10,6 +10,7 @@ import * as vault from "../vault/index.ts";
 import { AdminRoleProvider } from "./admin-role.ts";
 import type { CpnProviderConfig } from "./derive.ts";
 import { ProjectProvider } from "./project.ts";
+import { ZoneProvider } from "./zone.ts";
 
 // ---------------------------------------------------------------------------
 // CpnProvider(config) — every per-service provider + the two composites
@@ -49,6 +50,7 @@ export const CpnProvider = (config: CpnProviderConfig) =>
 		argocd.ProjectEnvironmentsProvider,
 		ProjectProvider(),
 		AdminRoleProvider(),
+		ZoneProvider(),
 	).pipe(
 		// nexus first: the config-resolved client feeds both the standalone
 		// nexus providers and the nexus children driven by Cpn.Project.
