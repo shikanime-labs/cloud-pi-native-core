@@ -258,14 +258,14 @@ memberships but cannot be mirrored to Keycloak/GitLab users; Nexus
 platform roles stay stack-level (`Cpn.Nexus.PlatformRoles`) because
 they aggregate all projects.
 
-## The console API service (`apps/console-api/src`)
+## The console API service (`apps/api/src`)
 
 The library ships a real HTTP service — the legacy console's project
 surface, provisioned through the composites. It is not an example: it is
 the deployable console replacement, one alchemy stage per project.
 
 ```sh
-pnpm --filter @cpn/console-api dev   # PORT, default 8080
+pnpm --filter @cpn/api dev   # PORT, default 8080
 ```
 
 | Surface | Path | Notes |
@@ -280,7 +280,7 @@ Layering: `contract.ts` (schemas + `HttpApi`, alchemy-free) → `handlers.ts`
 `.alchemy/state`) and deployer are interfaces — the second pass swaps in a
 database and auth behind the same seams.
 
-Conformance is pinned by three test tiers (`apps/console-api/test/`):
+Conformance is pinned by three test tiers (`apps/api/test/`):
 `conformance.test.ts` holds the new contract to the legacy `@ts-rest`
 router's methods, paths and status codes; `router.test.ts` exercises the
 real router via `toWebHandler` (per-route status, manifest);

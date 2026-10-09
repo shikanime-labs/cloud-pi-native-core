@@ -12,13 +12,13 @@ pnpm monorepo.
   (`keycloak/`, `vault/`, `gitlab/`, `sonarqube/`, `harbor/`, `nexus/`,
   `argocd/`) plus `core/` for the domain model (Project, Zone, Cluster, Stage,
   Environment, Repository, roles, members)
-- `apps/console-api/` — the deployable console API service (legacy project
+- `apps/api/` — the deployable console API service (legacy project
   surface + OpenAPI manifest over the core composites)
 - `apps/example/` — the full-deployment example stack
 - `docs/audit/` — the console audit that grounds every resource; update when
   the console modules move
 - `packages/core/test/` — `alchemy/Test/Vitest` provider lifecycle tests;
-  `apps/console-api/test/` — conformance, router and alchemy-mapping tiers
+  `apps/api/test/` — conformance, router and alchemy-mapping tiers
 
 ## Conventions
 

@@ -170,7 +170,7 @@ importers:
         specifier: 2.5.15
         version: 2.5.15
 
-  apps/console-api:
+  apps/api:
     dependencies:
       '@cpn/core':
         specifier: workspace:*
