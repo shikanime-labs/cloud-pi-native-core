@@ -28,7 +28,7 @@ export const ClusterProvider = () =>
 		Cluster,
 		Effect.gen(function* () {
 			const services = {
-				kubeconfigSecret: yield* vault.KubeconfigSecret.Provider.asEffect(),
+				kubeconfigSecret: yield* vault.KubeconfigSecret.Provider,
 			};
 			return Cluster.Provider.of({
 				list: () => Effect.succeed([]),

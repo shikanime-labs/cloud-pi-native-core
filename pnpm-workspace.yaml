@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/*
+  - operator
 allowBuilds:
   "@biomejs/biome": true
   esbuild: true

@@ -34,7 +34,7 @@ export const AdminRoleProvider = () =>
 	Provider.effect(
 		AdminRole,
 		Effect.gen(function* () {
-			const svc = yield* keycloak.AdminRoleGroup.Provider.asEffect();
+			const svc = yield* keycloak.AdminRoleGroup.Provider;
 			return AdminRole.Provider.of({
 				list: () => Effect.succeed([]),
 				reconcile: Effect.fn("Cpn.AdminRole/reconcile")(function* ({

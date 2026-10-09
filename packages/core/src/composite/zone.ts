@@ -33,9 +33,9 @@ export const ZoneProvider = () =>
 		Zone,
 		Effect.gen(function* () {
 			const services = {
-				vaultMount: yield* vault.ZoneMount.Provider.asEffect(),
-				vaultPolicy: yield* vault.ZonePolicy.Provider.asEffect(),
-				vaultAppRole: yield* vault.ZoneAppRole.Provider.asEffect(),
+				vaultMount: yield* vault.ZoneMount.Provider,
+				vaultPolicy: yield* vault.ZonePolicy.Provider,
+				vaultAppRole: yield* vault.ZoneAppRole.Provider,
 			};
 			return Zone.Provider.of({
 				list: () => Effect.succeed([]),
