@@ -1,0 +1,24 @@
+{
+	"name": "@cpn/operator",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"start": "tsx src/main.ts",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@cpn/core": "workspace:*",
+		"alchemy": "2.0.0-beta.81",
+		"effect": "^4.0.0",
+		"kubernetes-fluent-client": "^3.12.4"
+	},
+	"devDependencies": {
+		"@types/node": "26.6.4",
+		"tsx": "^4.23.15",
+		"typescript": "7.0.2",
+		"vitest": "5.0.3",
+		"yaml": "^2.9.1"
+	}
+}

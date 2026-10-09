@@ -1,0 +1,19 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  platforms:
+  - linux/arm64
+  artifacts:
+  - image: cpn-operator
+    context: .
+    docker:
+      dockerfile: operator/Dockerfile
+  local:
+    push: false
+manifests:
+  rawYaml:
+  - operator/k8s.yaml
+  - operator/crds/project-crd.yaml
+  - operator/crds/admin-role-crd.yaml
